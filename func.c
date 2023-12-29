@@ -68,7 +68,31 @@ int flush_pipe(int pipe){
 
 }
 
+int compare_rank_item(const void* a, const void* b){
+	rank_item* ra = (rank_item*) a;
+	rank_item* rb = (rank_item*) b;
+	return ra->bestlap - rb->bestlap;
+}
 
+int compare_pilotes(const void* a, const void* b){
+	pilote* ra = (pilote*) a;
+	pilote* rb = (pilote*) b;
+	if(ra->lap_cnt == rb->lap_cnt){
+		if(ra->sector == rb->sector){
+			return rb->time - ra->time;
+		}else{
+			return rb->sector - ra->sector;
+		}
+	}else{
+		return rb->lap_cnt - ra->lap_cnt;
+	}
+}
+
+int compare_pilote_position(const void* a, const void* b){
+	pilote* ra = (pilote*) a;
+	pilote* rb = (pilote*) b;
+	return ra->position - rb->position;
+}
 
 
 void sighandler(int sig) {
