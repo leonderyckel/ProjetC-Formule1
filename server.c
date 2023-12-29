@@ -90,3 +90,62 @@ void critical(void (*call)(void)){
 
 /* END : PREPARE */
 
+/* BEGIN : RACE */
+
+void resetPilotesByStatus(status s){
+	for (int car_counter = 0; car_counter < cars_cnt; car_counter++) {
+		pilote *current = &shm_addr[car_counter];
+		if(current->status == s){
+			current->status = driving;
+		}
+	}
+}
+
+void resetPilotes(){
+	for (int car_counter = 0; car_counter < cars_cnt; car_counter++) {
+		pilote *current = &shm_addr[car_counter];
+		current->lap_cnt = 0;
+		current->sector = 0;
+		current->position = car_counter;
+		updateCarStatus(current);
+	}
+}
+
+void resetTimers(){
+	bestLap = 999;
+	bestS1 = 999;
+	bestS2 = 999;
+	bestS3 = 999;
+}
+
+void rewriteStatus(){
+	for (int car_counter = 0; car_counter < cars_cnt; car_counter++) {
+		pilote *current = &shm_addr[car_counter];
+		updateCarStatus(current);
+	}
+}
+
+void startRace(int race_id){
+	race = race_id;
+	for (int i = 0; i < cars_cnt; i++) kill(pids[i], SIG_RACE_START);
+}
+
+void final_race_do_sort(){
+	memcpy(sortArray, shm_addr, cars_cnt*sizeof(pilote));
+	qsort(sortArray, cars_cnt, sizeof(pilote), &compare_pilotes);
+}
+
+void final_race_do_update_pos(){
+	for(int sortIt = 0; sortIt < cars_cnt; sortIt++){
+		pilote* thePilote = &sortArray[sortIt];
+		if(thePilote->status != out){
+			thePilote->position = sortIt;
+		}
+		writePosition(thePilote);
+	}
+}
+
+
+
+/* END : RACE */
+
